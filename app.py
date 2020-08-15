@@ -7,7 +7,7 @@ import pyperclip
 import pickle
 import time
 
-app_version = "1.0"
+app_version = "1.1"
 
 categories = ["OneLiners", "Emails", "QuickNotes", "Temp"]
 buttons = []
@@ -25,9 +25,9 @@ category_row = {"OneLiners":1, "Emails":2, "QuickNotes":3, "Temp":4}
 button_color = 'SystemButtonFace'
 last_clicked_button = None
 ## Helper Functions START ##
-def pickle_out():
+def pickle_out(file_name):
     """Exports buttons list to .pkl file"""
-    with open("export/dump_{}.pkl".format(time.strftime('%d-%m-%Y-%I-%M-%H-%M-%S')), "wb") as output:
+    with open(f"{file_name}.pkl", "wb") as output:
         pickle.dump(buttons, output, pickle.HIGHEST_PROTOCOL)
 
 
@@ -39,7 +39,7 @@ def pickle_in(file_name):
 
 
 def clipboard_command(label, value_to_return):
-    """returns a functions to be used for button action (command)"""
+    """returns a function for button action (command)"""
     def return_function():
         pyperclip.copy(value_to_return)
         global last_clicked_button
@@ -121,11 +121,18 @@ def command_new_button():
 
 
 def command_import():
-    import_filename = filedialog.askopenfilename(initialdir = "export/",title = "Select file",filetypes = (("pkl files","*.pkl"),("all files","*.*")))
+    import_filename = filedialog.askopenfilename(initialdir = "./",title = "Select file",filetypes = (("pkl files","*.pkl"),("all files","*.*")))
     if import_filename == "":
         return
     pickle_in(import_filename)
     build_buttons()
+
+
+def command_export():
+    file_name = filedialog.asksaveasfilename(initialdir = "./", title = "Select file")
+    if file_name != "":
+        pickle_out(file_name)
+
 
 
 def command_delete_button():
@@ -232,7 +239,7 @@ button_add_new_button.grid(column=8, row=0, padx=2)
 
 button_import = Button(frame_add_new, text="Import", command=command_import, relief=GROOVE)
 button_import.grid(column=9, row=0, padx=2)
-button_export = Button(frame_add_new, text="Export", command=pickle_out, relief=GROOVE)
+button_export = Button(frame_add_new, text="Export", command=command_export, relief=GROOVE)
 button_export.grid(column=10, row=0, padx=2)
 
 button_delete_button = Button(frame_add_new, text="<", command=command_move_left, relief=GROOVE)
